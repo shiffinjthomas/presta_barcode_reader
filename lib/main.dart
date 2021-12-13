@@ -65,8 +65,8 @@ class _MyAppState extends State<MyApp> {
                       children: <Widget>[
                         ElevatedButton(
                             // onPressed: () => scanBarcodeNormal(),
-                            onPressed: () {
-                              scanBarcodeNormal();
+                            onPressed: () async {
+                              await scanBarcodeNormal();
                               // print(_scanBarcode);
                               if (result) {
                                 if (_scanBarcode != '' ||

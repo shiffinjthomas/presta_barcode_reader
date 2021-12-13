@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'api.dart';
 import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart';
+import 'main.dart';
 
 class Product extends StatefulWidget {
   final url;
@@ -18,21 +21,18 @@ class _ProductState extends State<Product> {
     super.initState();
   }
 
-  submitdata() {
-    print(nameController.text);
-  }
-
   var _url;
   final _key = UniqueKey();
   var connectionStatus = false;
   _ProductState(this._url);
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController nameController = TextEditingController();
-  TextEditingController if_activeController = TextEditingController();
-  TextEditingController reference_numberController = TextEditingController();
-  TextEditingController qty_on_handController = TextEditingController();
+  TextEditingController ifactiveController = TextEditingController();
+  TextEditingController referencenumberController = TextEditingController();
+  TextEditingController qtyonhandController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  late bool _switchValue;
 
   Future check() async {
     try {
@@ -42,6 +42,11 @@ class _ProductState extends State<Product> {
       if (data != null) {
         connectionStatus = true;
         print("connected $connectionStatus");
+      }
+      if (data['products'][0]['active'].toString() == '1') {
+        _switchValue = true;
+      } else {
+        _switchValue = false;
       }
       //print(data);
       return data;
@@ -73,68 +78,107 @@ class _ProductState extends State<Product> {
                                 "Name :${snapshot.data['products'][0]['name'].toString()}",
                             hintText: snapshot.data['products'][0]['name']
                                 .toString())),
+                    // CupertinoSwitch(
+                    //   value: _switchValue,
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       _switchValue = value;
+                    //     });
+                    //   },
+                    // ),
                     TextField(
-                        controller: if_activeController,
+                        controller: ifactiveController,
                         decoration: InputDecoration(
                             labelText:
-                                "Active :${snapshot.data['products'][0]['id'].toString()}",
+                                "Active :${snapshot.data['products'][0]['active'].toString()}",
                             hintText: "Active")),
                     TextField(
-                        controller: reference_numberController,
+                        controller: referencenumberController,
                         decoration: InputDecoration(
                             labelText:
-                                "Reference :${snapshot.data['products'][0]['id'].toString()}",
+                                "Reference :${snapshot.data['products'][0]['reference'].toString()}",
                             hintText: "Reference")),
                     TextField(
-                        controller: qty_on_handController,
+                        controller: qtyonhandController,
                         decoration: InputDecoration(
                             labelText:
-                                "Quantity :${snapshot.data['products'][0]['id'].toString()}",
+                                "Quantity :${snapshot.data['products'][0]['quantity'].toString()}",
                             hintText: "Quantity")),
                     TextField(
                         controller: priceController,
                         decoration: InputDecoration(
                             labelText:
-                                "Price :${snapshot.data['products'][0]['id'].toString()}",
+                                "Price :${snapshot.data['products'][0]['price'].toString()}",
                             hintText: "Price")),
                     TextField(
                         controller: locationController,
                         decoration: InputDecoration(
                             labelText:
-                                "Location :${snapshot.data['products'][0]['id'].toString()}",
+                                "Location :${snapshot.data['products'][0]['location'].toString()}",
                             hintText: "Location")),
                     ElevatedButton(
                         // onPressed: () => scanBarcodeNormal(),
-                        onPressed: () {
+                        onPressed: () async {
                           if (nameController.text == '') {
                             nameController.text =
                                 snapshot.data['products'][0]['name'].toString();
                           }
-                          if (if_activeController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
+                          if (ifactiveController.text == '') {
+                            ifactiveController.text = snapshot.data['products']
+                                    [0]['active']
+                                .toString();
                           }
-                          if (reference_numberController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
+                          var active = _switchValue ? '1' : '0';
+                          if (referencenumberController.text == '') {
+                            referencenumberController.text = snapshot
+                                .data['products'][0]['reference']
+                                .toString();
                           }
-                          if (qty_on_handController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
+                          if (qtyonhandController.text == '') {
+                            qtyonhandController.text = snapshot.data['products']
+                                    [0]['quantity']
+                                .toString();
                           }
                           if (priceController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
-                          }
-                          if (priceController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
+                            priceController.text = snapshot.data['products'][0]
+                                    ['price']
+                                .toString();
                           }
                           if (locationController.text == '') {
-                            if_activeController.text =
-                                snapshot.data['products'][0]['id'].toString();
+                            locationController.text = snapshot.data['products']
+                                    [0]['location']
+                                .toString();
                           }
-                          submitdata();
+
+                          final userXml =
+                              '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<product>
+<id>${snapshot.data['products'][0]['id'].toString()}</id>
+<reference>${referencenumberController.text} </reference>
+<location>${locationController.text}</location>
+<price>${priceController.text}</price>
+<active>${ifactiveController.text}</active>
+<name>${nameController.text} </name>
+</product>
+
+</prestashop>''';
+                          final http.Response result = await http.put(
+                            Uri.parse(
+                                'https://shiffin.gofenice.in/tutpre/api/products?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
+                            headers: <String, String>{
+                              'Content-Type': 'text/xml; charset=UTF-8',
+                            },
+                            body: userXml,
+                          );
+                          if (result.statusCode == 200) {
+                            print('Sucess');
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyApp()));
+                          } else {
+                            print('Fail');
+                          }
                         },
                         child: Text('Submit Data')),
                   ],
@@ -146,7 +190,7 @@ class _ProductState extends State<Product> {
                   children: [
                     Container(
                         padding: EdgeInsets.all(20.0),
-                        child: Text('Sorry No Internet')),
+                        child: Text('loading please wait')),
                   ],
                 ));
               }
