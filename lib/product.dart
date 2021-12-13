@@ -20,7 +20,6 @@ class _ProductState extends State<Product> {
 
   submitdata() {
     print(nameController.text);
-    print(idController.text);
   }
 
   var _url;
@@ -29,7 +28,12 @@ class _ProductState extends State<Product> {
   _ProductState(this._url);
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController nameController = TextEditingController();
-  TextEditingController idController = TextEditingController();
+  TextEditingController if_activeController = TextEditingController();
+  TextEditingController reference_numberController = TextEditingController();
+  TextEditingController qty_on_handController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+
   Future check() async {
     try {
       var response = await http.get(Uri.parse(
@@ -70,11 +74,35 @@ class _ProductState extends State<Product> {
                             hintText: snapshot.data['products'][0]['name']
                                 .toString())),
                     TextField(
-                        controller: idController,
+                        controller: if_activeController,
                         decoration: InputDecoration(
                             labelText:
-                                "Id :${snapshot.data['products'][0]['id'].toString()}",
-                            hintText: "id")),
+                                "Active :${snapshot.data['products'][0]['id'].toString()}",
+                            hintText: "Active")),
+                    TextField(
+                        controller: reference_numberController,
+                        decoration: InputDecoration(
+                            labelText:
+                                "Reference :${snapshot.data['products'][0]['id'].toString()}",
+                            hintText: "Reference")),
+                    TextField(
+                        controller: qty_on_handController,
+                        decoration: InputDecoration(
+                            labelText:
+                                "Quantity :${snapshot.data['products'][0]['id'].toString()}",
+                            hintText: "Quantity")),
+                    TextField(
+                        controller: priceController,
+                        decoration: InputDecoration(
+                            labelText:
+                                "Price :${snapshot.data['products'][0]['id'].toString()}",
+                            hintText: "Price")),
+                    TextField(
+                        controller: locationController,
+                        decoration: InputDecoration(
+                            labelText:
+                                "Location :${snapshot.data['products'][0]['id'].toString()}",
+                            hintText: "Location")),
                     ElevatedButton(
                         // onPressed: () => scanBarcodeNormal(),
                         onPressed: () {
@@ -82,8 +110,28 @@ class _ProductState extends State<Product> {
                             nameController.text =
                                 snapshot.data['products'][0]['name'].toString();
                           }
-                          if (idController.text == '') {
-                            idController.text =
+                          if (if_activeController.text == '') {
+                            if_activeController.text =
+                                snapshot.data['products'][0]['id'].toString();
+                          }
+                          if (reference_numberController.text == '') {
+                            if_activeController.text =
+                                snapshot.data['products'][0]['id'].toString();
+                          }
+                          if (qty_on_handController.text == '') {
+                            if_activeController.text =
+                                snapshot.data['products'][0]['id'].toString();
+                          }
+                          if (priceController.text == '') {
+                            if_activeController.text =
+                                snapshot.data['products'][0]['id'].toString();
+                          }
+                          if (priceController.text == '') {
+                            if_activeController.text =
+                                snapshot.data['products'][0]['id'].toString();
+                          }
+                          if (locationController.text == '') {
+                            if_activeController.text =
                                 snapshot.data['products'][0]['id'].toString();
                           }
                           submitdata();

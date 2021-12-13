@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _scanBarcode = 'Unknown';
+
   bool result = false;
 
   @override
@@ -23,7 +24,7 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> scanBarcodeNormal() async {
-    String barcodeScanRes;
+    String barcodeScanRes = 'Unknown';
 
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
@@ -36,7 +37,7 @@ class _MyAppState extends State<MyApp> {
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
-    //  if (!mounted) return;
+    if (!mounted) return;
 
     setState(() {
       _scanBarcode = barcodeScanRes;
