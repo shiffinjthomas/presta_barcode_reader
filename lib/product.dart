@@ -57,7 +57,7 @@ class _ProductState extends State<Product> {
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               if (snapshot.data != null) {
                 //if Internet is connected
-                // print(snapshot.data['products'][0]['name']);
+                // print(snapshot.data);
                 return SafeArea(
                     child: ListView(
                   padding: const EdgeInsets.all(8),

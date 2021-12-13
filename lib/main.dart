@@ -29,10 +29,6 @@ class _MyAppState extends State<MyApp> {
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-      if (barcodeScanRes != 'Unknown') {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => Product(barcodeScanRes)));
-      }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
@@ -40,11 +36,10 @@ class _MyAppState extends State<MyApp> {
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
-    if (!mounted) return;
+    //  if (!mounted) return;
 
     setState(() {
       _scanBarcode = barcodeScanRes;
-      print(_scanBarcode);
       if (_scanBarcode != 'Failed to get platform version.' ||
           _scanBarcode != 'Unknown') {
         result = true;
@@ -71,20 +66,21 @@ class _MyAppState extends State<MyApp> {
                             // onPressed: () => scanBarcodeNormal(),
                             onPressed: () {
                               scanBarcodeNormal();
-                            },
-                            child: Text('Start barcode scan')),
-                        result
-                            ? ElevatedButton(
-                                // onPressed: () => scanBarcodeNormal(),
-                                onPressed: () {
+                              // print(_scanBarcode);
+                              if (result) {
+                                if (_scanBarcode != '' ||
+                                    _scanBarcode !=
+                                        'Failed to get platform version.' ||
+                                    _scanBarcode != 'Unknown') {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               Product(_scanBarcode)));
-                                },
-                                child: Text('Update Product : $_scanBarcode'))
-                            : Container(),
+                                }
+                              }
+                            },
+                            child: Text('Start barcode scan')),
                       ]));
             })));
   }
