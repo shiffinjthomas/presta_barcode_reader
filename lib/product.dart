@@ -7,6 +7,7 @@ import 'api.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 import 'main.dart';
+import 'package:async/async.dart';
 
 class Product extends StatefulWidget {
   final url;
@@ -32,7 +33,7 @@ class _ProductState extends State<Product> {
   TextEditingController qtyonhandController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  late bool _switchValue;
+  late bool _switchValue = false;
 
   Future check() async {
     try {
@@ -43,12 +44,10 @@ class _ProductState extends State<Product> {
         connectionStatus = true;
         print("connected $connectionStatus");
       }
-      if (data['products'][0]['active'].toString() == '1') {
-        _switchValue = true;
-      } else {
-        _switchValue = false;
-      }
-      //print(data);
+      // if (data['products'][0]['active'].toString() == '1') {
+      //   _switchValue = true;
+      // }
+      print(_switchValue);
       return data;
     } on SocketException catch (_) {
       connectionStatus = false;
@@ -78,16 +77,30 @@ class _ProductState extends State<Product> {
                                 "Name :${snapshot.data['products'][0]['name'].toString()}",
                             hintText: snapshot.data['products'][0]['name']
                                 .toString())),
-                    // CupertinoSwitch(
+                    // Switch(
                     //   value: _switchValue,
                     //   onChanged: (value) {
                     //     setState(() {
                     //       _switchValue = value;
+                    //       print(_switchValue);
                     //     });
+                    //   },
+                    //   activeTrackColor: Colors.lightGreenAccent,
+                    //   activeColor: Colors.green,
+                    // ),
+                    // ElevatedButton(
+                    //   child: Text(' Update Quantity'),
+                    //   style: ElevatedButton.styleFrom(
+                    //     primary: Colors.red, // background
+                    //     onPrimary: Colors.white, // foreground
+                    //   ),
+                    //   onPressed: () async {
+                    //     _showSnackBar(context, 'Wrong Username or password');
                     //   },
                     // ),
                     TextField(
                         controller: ifactiveController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             labelText:
                                 "Active :${snapshot.data['products'][0]['active'].toString()}",
@@ -160,15 +173,34 @@ class _ProductState extends State<Product> {
 <active>${ifactiveController.text}</active>
 <name>${nameController.text} </name>
 </product>
-
 </prestashop>''';
+                          final userXml2 =
+                              '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<stock_availables>
+<id>${snapshot.data['products'][0]['associations']['stock_availables'][0]['id'].toString()}</id>
+<id_product >${snapshot.data['products'][0]['id'].toString()}</id_product>
+<id_product_attribute>${snapshot.data['products'][0]['associations']['stock_availables'][0]['id_product_attribute'].toString()}</id_product_attribute>
+<quantity>${qtyonhandController.text}</quantity>
+ <depends_on_stock>0</depends_on_stock>
+<out_of_stock>0</out_of_stock>
+</stock_available>
+</prestashop>''';
+                          // final http.Response result = await http.put(
+                          //   Uri.parse(
+                          //       'https://shiffin.gofenice.in/tutpre/api/products?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
+                          //   headers: <String, String>{
+                          //     'Content-Type': 'text/xml; charset=UTF-8',
+                          //   },
+                          //   body: userXml,
+                          // );
+                          print(userXml2);
                           final http.Response result = await http.put(
                             Uri.parse(
-                                'https://shiffin.gofenice.in/tutpre/api/products?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
+                                'https://shiffin.gofenice.in/tutpre/api/stock_availables?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
                             headers: <String, String>{
                               'Content-Type': 'text/xml; charset=UTF-8',
                             },
-                            body: userXml,
+                            body: userXml2,
                           );
                           if (result.statusCode == 200) {
                             print('Sucess');
@@ -196,4 +228,22 @@ class _ProductState extends State<Product> {
               }
             }));
   }
+}
+
+void _showSnackBar(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => CupertinoAlertDialog(
+      title: Text(' Update Quantity'),
+      content: Column(
+        children: [],
+      ),
+      actions: <Widget>[
+        CupertinoDialogAction(
+          child: Text('OK'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    ),
+  );
 }
