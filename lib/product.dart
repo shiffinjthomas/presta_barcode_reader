@@ -1,13 +1,15 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'api.dart';
 import 'package:http/http.dart' as http;
-import 'package:xml/xml.dart';
+//import 'package:xml/xml.dart';
 import 'main.dart';
-import 'package:async/async.dart';
+//import 'package:async/async.dart';
+import 'package:delayed_display/delayed_display.dart';
 
 class Product extends StatefulWidget {
   final url;
@@ -22,11 +24,11 @@ class _ProductState extends State<Product> {
     super.initState();
   }
 
-  var _url;
-  final _key = UniqueKey();
+  // ignore: prefer_typing_uninitialized_variables
+  final _url;
   var connectionStatus = false;
   _ProductState(this._url);
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController ifactiveController = TextEditingController();
   TextEditingController referencenumberController = TextEditingController();
@@ -35,27 +37,38 @@ class _ProductState extends State<Product> {
   TextEditingController locationController = TextEditingController();
   late bool _switchValue = false;
   late bool _exicuted = false;
-
+  // final _site = "https://shiffin.gofenice.in/tutpre/api";
+  // final _key = "ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1";
+  final _site = "https://trendz.gofenice.in/api";
+  final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";
   Future check() async {
     try {
+      print(
+          '$_site/products?filter[reference]=$_url&display=full&output_format=JSON&$_key');
       var response = await http.get(Uri.parse(
-          'https://shiffin.gofenice.in/tutpre/api/products?filter[reference]=$_url&display=full&language=1&output_format=JSON&ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1'));
+          '$_site/products?filter[reference]=$_url&display=full&output_format=JSON&$_key'));
       var data = jsonDecode(utf8.decode(response.bodyBytes));
+
+      var response2 = await http.get(Uri.parse(
+          '$_site/stock_availables?filter[id_product]=${data['products'][0]['id']}&display=full&output_format=JSON&$_key'));
+      var data2 = jsonDecode(utf8.decode(response2.bodyBytes));
+      data['stock'] = data2['stock_availables'][0];
+      print(data2);
       if (data != null) {
         connectionStatus = true;
-        print("connected $connectionStatus");
+        //  print("connected $connectionStatus");
       }
+
       if (!_exicuted) {
         if (data['products'][0]['active'].toString() == '1') {
           _switchValue = true;
         }
       }
 
-      print(_switchValue);
-      return data;
+      // return data;
     } on SocketException catch (_) {
       connectionStatus = false;
-      print("not connected $connectionStatus");
+      // print("not connected $connectionStatus");
     }
   }
 
@@ -69,7 +82,7 @@ class _ProductState extends State<Product> {
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               if (snapshot.data != null) {
                 //if Internet is connected
-                // print(snapshot.data);
+                // print(snapshot.data['stock']['id']);
                 return SafeArea(
                     child: ListView(
                   padding: const EdgeInsets.all(8),
@@ -122,12 +135,14 @@ class _ProductState extends State<Product> {
                             hintText: "Reference")),
                     TextField(
                         controller: qtyonhandController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             labelText:
-                                "Quantity :${snapshot.data['products'][0]['quantity'].toString()}",
+                                "Quantity :${snapshot.data['stock']['quantity'].toString()}",
                             hintText: "Quantity")),
                     TextField(
                         controller: priceController,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                             labelText:
                                 "Price :${snapshot.data['products'][0]['price'].toString()}",
@@ -136,7 +151,7 @@ class _ProductState extends State<Product> {
                         controller: locationController,
                         decoration: InputDecoration(
                             labelText:
-                                "Location :${snapshot.data['products'][0]['location'].toString()}",
+                                "Location :${snapshot.data['stock']['location'].toString()}",
                             hintText: "Location")),
                     ElevatedButton(
                         // onPressed: () => scanBarcodeNormal(),
@@ -157,9 +172,8 @@ class _ProductState extends State<Product> {
                                 .toString();
                           }
                           if (qtyonhandController.text == '') {
-                            qtyonhandController.text = snapshot.data['products']
-                                    [0]['quantity']
-                                .toString();
+                            qtyonhandController.text =
+                                snapshot.data['stock']['quantity'].toString();
                           }
                           if (priceController.text == '') {
                             priceController.text = snapshot.data['products'][0]
@@ -167,9 +181,8 @@ class _ProductState extends State<Product> {
                                 .toString();
                           }
                           if (locationController.text == '') {
-                            locationController.text = snapshot.data['products']
-                                    [0]['location']
-                                .toString();
+                            locationController.text =
+                                snapshot.data['stock']['location'].toString();
                           }
 
                           final userXml =
@@ -179,46 +192,50 @@ class _ProductState extends State<Product> {
 <reference>${referencenumberController.text} </reference>
 <location>${locationController.text}</location>
 <price>${priceController.text}</price>
-<active>${active}</active>
+<active>$active</active>
 <name>${nameController.text} </name>
 </product>
 </prestashop>''';
                           final userXml2 =
                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
-<stock_availables>
-<id>${snapshot.data['products'][0]['associations']['stock_availables'][0]['id'].toString()}</id>
-<id_product >${snapshot.data['products'][0]['id'].toString()}</id_product>
-<id_product_attribute>${snapshot.data['products'][0]['associations']['stock_availables'][0]['id_product_attribute'].toString()}</id_product_attribute>
-<quantity>${qtyonhandController.text}</quantity>
- <depends_on_stock>0</depends_on_stock>
-<out_of_stock>0</out_of_stock>
-</stock_available>
+  <stock_available>
+    <id>${snapshot.data['stock']['id'].toString()}</id>
+    <id_product>${snapshot.data['stock']['id_product'].toString()}</id_product>
+    <id_product_attribute>${snapshot.data['stock']['id_product_attribute'].toString()}</id_product_attribute>
+    <id_shop>${snapshot.data['stock']['id_shop'].toString()}</id_shop>
+    <id_shop_group>${snapshot.data['stock']['id_shop_group'].toString()}</id_shop_group>
+    <quantity>${qtyonhandController.text}</quantity>
+    <depends_on_stock>${snapshot.data['stock']['depends_on_stock'].toString()}</depends_on_stock>
+    <out_of_stock>${snapshot.data['stock']['out_of_stock'].toString()}</out_of_stock>
+    <location>${locationController.text}</location>
+  </stock_available>
 </prestashop>''';
-                          // final http.Response result = await http.put(
-                          //   Uri.parse(
-                          //       'https://shiffin.gofenice.in/tutpre/api/products?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
-                          //   headers: <String, String>{
-                          //     'Content-Type': 'text/xml; charset=UTF-8',
-                          //   },
-                          //   body: userXml,
-                          // );
-                          print(userXml);
+
                           final http.Response result = await http.put(
-                            Uri.parse(
-                                'https://shiffin.gofenice.in/tutpre/api/stock_availables?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
+                            Uri.parse('$_site/products?$_key'),
+                            headers: <String, String>{
+                              'Content-Type': 'text/xml; charset=UTF-8',
+                            },
+                            body: userXml,
+                          );
+                          // print(userXml2);
+                          final http.Response result2 = await http.put(
+                            Uri.parse('$_site/stock_availables?$_key'),
                             headers: <String, String>{
                               'Content-Type': 'text/xml; charset=UTF-8',
                             },
                             body: userXml2,
                           );
-                          if (result.statusCode == 200) {
-                            print('Sucess');
+                          if (result.statusCode == 200 &&
+                              result2.statusCode == 200) {
+                            _showSnackBar(context, 'Updated Product');
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => MyApp()));
                           } else {
-                            print('Fail');
+                            _showSnackBar(
+                                context, 'Cannot Update Product Try Again');
                           }
                         },
                         child: Text('Submit Data')),
@@ -227,12 +244,16 @@ class _ProductState extends State<Product> {
               } else {
                 //If internet is not connected
                 return SafeArea(
-                    child: Column(
-                  children: [
-                    Container(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text('loading please wait')),
-                  ],
+                    child: Center(
+                  child: DelayedDisplay(
+                    delay: Duration(seconds: 5),
+                    child: Text(
+                      "Product not found. Try again later",
+                      style: TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
                 ));
               }
             }));
@@ -243,8 +264,9 @@ void _showSnackBar(BuildContext context, String message) {
   showDialog(
     context: context,
     builder: (BuildContext context) => CupertinoAlertDialog(
-      title: Text(' Update Quantity'),
+      title: Text(message),
       content: Column(
+        // ignore: prefer_const_literals_to_create_immutables
         children: [],
       ),
       actions: <Widget>[
