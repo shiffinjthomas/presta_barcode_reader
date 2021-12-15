@@ -34,6 +34,7 @@ class _ProductState extends State<Product> {
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   late bool _switchValue = false;
+  late bool _exicuted = false;
 
   Future check() async {
     try {
@@ -44,9 +45,12 @@ class _ProductState extends State<Product> {
         connectionStatus = true;
         print("connected $connectionStatus");
       }
-      // if (data['products'][0]['active'].toString() == '1') {
-      //   _switchValue = true;
-      // }
+      if (!_exicuted) {
+        if (data['products'][0]['active'].toString() == '1') {
+          _switchValue = true;
+        }
+      }
+
       print(_switchValue);
       return data;
     } on SocketException catch (_) {
@@ -77,17 +81,22 @@ class _ProductState extends State<Product> {
                                 "Name :${snapshot.data['products'][0]['name'].toString()}",
                             hintText: snapshot.data['products'][0]['name']
                                 .toString())),
-                    // Switch(
-                    //   value: _switchValue,
-                    //   onChanged: (value) {
-                    //     setState(() {
-                    //       _switchValue = value;
-                    //       print(_switchValue);
-                    //     });
-                    //   },
-                    //   activeTrackColor: Colors.lightGreenAccent,
-                    //   activeColor: Colors.green,
-                    // ),
+                    Row(
+                      children: [
+                        Text('Active'),
+                        Switch(
+                          value: _switchValue,
+                          onChanged: (value) {
+                            setState(() {
+                              _switchValue = value;
+                              _exicuted = true;
+                            });
+                          },
+                          activeTrackColor: Colors.lightGreenAccent,
+                          activeColor: Colors.green,
+                        ),
+                      ],
+                    ),
                     // ElevatedButton(
                     //   child: Text(' Update Quantity'),
                     //   style: ElevatedButton.styleFrom(
@@ -98,13 +107,13 @@ class _ProductState extends State<Product> {
                     //     _showSnackBar(context, 'Wrong Username or password');
                     //   },
                     // ),
-                    TextField(
-                        controller: ifactiveController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            labelText:
-                                "Active :${snapshot.data['products'][0]['active'].toString()}",
-                            hintText: "Active")),
+                    // TextField(
+                    //     controller: ifactiveController,
+                    //     keyboardType: TextInputType.number,
+                    //     decoration: InputDecoration(
+                    //         labelText:
+                    //             "Active :${snapshot.data['products'][0]['active'].toString()}",
+                    //         hintText: "Active")),
                     TextField(
                         controller: referencenumberController,
                         decoration: InputDecoration(
@@ -170,7 +179,7 @@ class _ProductState extends State<Product> {
 <reference>${referencenumberController.text} </reference>
 <location>${locationController.text}</location>
 <price>${priceController.text}</price>
-<active>${ifactiveController.text}</active>
+<active>${active}</active>
 <name>${nameController.text} </name>
 </product>
 </prestashop>''';
@@ -193,7 +202,7 @@ class _ProductState extends State<Product> {
                           //   },
                           //   body: userXml,
                           // );
-                          print(userXml2);
+                          print(userXml);
                           final http.Response result = await http.put(
                             Uri.parse(
                                 'https://shiffin.gofenice.in/tutpre/api/stock_availables?ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1&schema=blank'),
