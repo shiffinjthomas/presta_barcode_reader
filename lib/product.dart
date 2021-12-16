@@ -25,7 +25,7 @@ class _ProductState extends State<Product> {
   }
 
   // ignore: prefer_typing_uninitialized_variables
-  final _url;
+  late final _url;
   var connectionStatus = false;
   _ProductState(this._url);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -43,29 +43,31 @@ class _ProductState extends State<Product> {
   final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";
   Future check() async {
     try {
-      print(
-          '$_site/products?filter[reference]=$_url&display=full&output_format=JSON&$_key');
-      var response = await http.get(Uri.parse(
-          '$_site/products?filter[reference]=$_url&display=full&output_format=JSON&$_key'));
-      var data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (_url.length == 8 || _url.length == 13) {
+        // print(
+        //     '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key');
+        var response = await http.get(Uri.parse(
+            '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key'));
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
 
-      var response2 = await http.get(Uri.parse(
-          '$_site/stock_availables?filter[id_product]=${data['products'][0]['id']}&display=full&output_format=JSON&$_key'));
-      var data2 = jsonDecode(utf8.decode(response2.bodyBytes));
-      data['stock'] = data2['stock_availables'][0];
-      // print(data);
-      if (data != null) {
-        connectionStatus = true;
-        //  print("connected $connectionStatus");
-      }
-
-      if (!_exicuted) {
-        if (data['products'][0]['active'].toString() == '1') {
-          _switchValue = true;
+        var response2 = await http.get(Uri.parse(
+            '$_site/stock_availables?filter[id_product]=${data['products'][0]['id']}&display=full&output_format=JSON&$_key'));
+        var data2 = jsonDecode(utf8.decode(response2.bodyBytes));
+        data['stock'] = data2['stock_availables'][0];
+        // print(data);
+        if (data != null) {
+          connectionStatus = true;
+          //  print("connected $connectionStatus");
         }
-      }
 
-      return data;
+        if (!_exicuted) {
+          if (data['products'][0]['active'].toString() == '1') {
+            _switchValue = true;
+          }
+        }
+
+        return data;
+      }
     } on SocketException catch (_) {
       connectionStatus = false;
       // print("not connected $connectionStatus");
