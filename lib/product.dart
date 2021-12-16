@@ -53,7 +53,7 @@ class _ProductState extends State<Product> {
           '$_site/stock_availables?filter[id_product]=${data['products'][0]['id']}&display=full&output_format=JSON&$_key'));
       var data2 = jsonDecode(utf8.decode(response2.bodyBytes));
       data['stock'] = data2['stock_availables'][0];
-      print(data2);
+      // print(data);
       if (data != null) {
         connectionStatus = true;
         //  print("connected $connectionStatus");
@@ -65,7 +65,7 @@ class _ProductState extends State<Product> {
         }
       }
 
-      // return data;
+      return data;
     } on SocketException catch (_) {
       connectionStatus = false;
       // print("not connected $connectionStatus");
@@ -188,29 +188,31 @@ class _ProductState extends State<Product> {
                           final userXml =
                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
 <product>
-<id>${snapshot.data['products'][0]['id'].toString()}</id>
-<reference>${referencenumberController.text} </reference>
-<location>${locationController.text}</location>
-<price>${priceController.text}</price>
+<id>${snapshot.data['products'][0]['id'].toString().trim()}</id>
+<reference>${referencenumberController.text.trim()}</reference>
+<location>${locationController.text.trim()}</location>
+<price>${priceController.text.trim()}</price>
 <active>$active</active>
-<name>${nameController.text} </name>
+<ean13>${referencenumberController.text.trim()}</ean13>
+<name>${nameController.text.trim()} </name>
 </product>
 </prestashop>''';
                           final userXml2 =
                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
   <stock_available>
-    <id>${snapshot.data['stock']['id'].toString()}</id>
-    <id_product>${snapshot.data['stock']['id_product'].toString()}</id_product>
-    <id_product_attribute>${snapshot.data['stock']['id_product_attribute'].toString()}</id_product_attribute>
-    <id_shop>${snapshot.data['stock']['id_shop'].toString()}</id_shop>
-    <id_shop_group>${snapshot.data['stock']['id_shop_group'].toString()}</id_shop_group>
-    <quantity>${qtyonhandController.text}</quantity>
-    <depends_on_stock>${snapshot.data['stock']['depends_on_stock'].toString()}</depends_on_stock>
-    <out_of_stock>${snapshot.data['stock']['out_of_stock'].toString()}</out_of_stock>
-    <location>${locationController.text}</location>
+    <id>${snapshot.data['stock']['id'].toString().trim()}</id>
+    <id_product>${snapshot.data['stock']['id_product'].toString().trim()}</id_product>
+    <id_product_attribute>${snapshot.data['stock']['id_product_attribute'].toString().trim()}</id_product_attribute>
+    <id_shop>${snapshot.data['stock']['id_shop'].toString().trim()}</id_shop>
+    <id_shop_group>${snapshot.data['stock']['id_shop_group'].toString().trim()}</id_shop_group>
+    <quantity>${qtyonhandController.text.trim()}</quantity>
+    <depends_on_stock>${snapshot.data['stock']['depends_on_stock'].toString().trim()}</depends_on_stock>
+    <out_of_stock>${snapshot.data['stock']['out_of_stock'].toString().trim()}</out_of_stock>
+    <location>${locationController.text.trim()}</location>
   </stock_available>
 </prestashop>''';
-
+                          // print(userXml);
+                          // print(userXml2);
                           final http.Response result = await http.put(
                             Uri.parse('$_site/products?$_key'),
                             headers: <String, String>{
