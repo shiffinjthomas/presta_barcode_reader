@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
       300: Color(0xFFEF8344),
       400: Color(0xFFEF8344),
       500: Color(_blackPrimaryValue),
-      600: Color(0xFFEF8344),
+      600: Color(0xFFffbe98),
       700: Color(0xFFEF8344),
       800: Color(0xFFEF8344),
       900: Color(0xFFEF8344),
@@ -78,8 +78,12 @@ class _MyAppState extends State<MyApp> {
             )),
         home: Scaffold(
             appBar: AppBar(title: const Text('Barcode scan')),
-            bottomNavigationBar: const Padding(
-              padding: EdgeInsets.only(left: 50.0, right: 50.0),
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                  color: primaryBlack[600],
+                  border: Border.all(
+                    color: primaryBlack,
+                  )),
               child: Text('Devoloped by :Gofenice Tecnologies'),
             ),
             body: Builder(builder: (BuildContext context) {
@@ -90,6 +94,8 @@ class _MyAppState extends State<MyApp> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(240, 80)),
                             // onPressed: () => scanBarcodeNormal(),
                             onPressed: () async {
                               await scanBarcodeNormal();

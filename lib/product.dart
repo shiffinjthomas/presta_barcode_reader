@@ -45,7 +45,22 @@ class _ProductState extends State<Product> {
   // final _key = "ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1";
   final _site = "https://trendz.gofenice.in/api";
   final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";
-
+  static const MaterialColor primaryBlack = MaterialColor(
+    _blackPrimaryValue,
+    <int, Color>{
+      50: Color(0xFFEF8344),
+      100: Color(0xFFEF8344),
+      200: Color(0xFFEF8344),
+      300: Color(0xFFEF8344),
+      400: Color(0xFFEF8344),
+      500: Color(_blackPrimaryValue),
+      600: Color(0xFFffbe98),
+      700: Color(0xFFEF8344),
+      800: Color(0xFFEF8344),
+      900: Color(0xFFEF8344),
+    },
+  );
+  static const int _blackPrimaryValue = 0xFFEF8344;
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes = 'Unknown';
@@ -112,8 +127,12 @@ class _ProductState extends State<Product> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(title: const Text('Barcode scan')),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(left: 50.0, right: 50.0),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+              color: primaryBlack[600],
+              border: Border.all(
+                color: primaryBlack,
+              )),
           child: Text('Devoloped by :Gofenice Tecnologies'),
         ),
         body: FutureBuilder(
@@ -126,19 +145,18 @@ class _ProductState extends State<Product> {
                     child: ListView(
                   padding: const EdgeInsets.all(8),
                   children: <Widget>[
-                    Flexible(
-                      child: new Container(
-                        padding: new EdgeInsets.only(right: 13.0),
-                        child: new Text(
-                          '${snapshot.data['products'][0]['name'].toString()}',
-                          overflow: TextOverflow.fade,
-                          style: new TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    Container(
+                      padding: new EdgeInsets.only(right: 13.0),
+                      child: new Text(
+                        '${snapshot.data['products'][0]['name'].toString()}',
+                        overflow: TextOverflow.fade,
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
+
                     TextField(
                         style: new TextStyle(
                           fontSize: 18.0,
@@ -263,16 +281,53 @@ class _ProductState extends State<Product> {
 
                           final userXml =
                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
-<product>
-<id>${snapshot.data['products'][0]['id'].toString().trim()}</id>
-<reference>${referencenumberController.text.trim()}</reference>
-<location>${locationController.text.trim()}</location>
-<price>${priceController.text.trim()}</price>
-<active>$active</active>
-<ean13>${referencenumberController.text.trim()}</ean13>
-<name>${nameController.text.trim()} </name>
+  <product>
+    <id>${snapshot.data['products'][0]['id'].toString().trim()}</id>
+    <id_manufacturer>${snapshot.data['products'][0]['id_manufacturer']}</id_manufacturer>
+    <id_supplier>${snapshot.data['products'][0]['id_supplier']}</id_supplier>
+    <id_category_default>${snapshot.data['products'][0]['id_category_default']}</id_category_default>
+    <new>${snapshot.data['products'][0]['new']}</new>
+    <cache_default_attribute>${snapshot.data['products'][0]['cache_default_attribute']}</cache_default_attribute>
+     <id_tax_rules_group>${snapshot.data['products'][0]['id_tax_rules_group']}</id_tax_rules_group>
+      <id_shop_default>${snapshot.data['products'][0]['id_shop_default']}</id_shop_default>
+    <reference>${referencenumberController.text.trim()}</reference>
+    <supplier_reference>${snapshot.data['products'][0]['supplier_reference']}</supplier_reference>
+    <location>${locationController.text.trim()}</location>
+   <ean13>${referencenumberController.text.trim()}</ean13>
+    <price>${priceController.text.trim()}</price>
+    <wholesale_price>${snapshot.data['products'][0]['wholesale_price']}</wholesale_price>
+    <unity>${snapshot.data['products'][0]['unity']}</unity>
+    <unit_price_ratio>${snapshot.data['products'][0]['unit_price_ratio']}</unit_price_ratio>
+    <active>$active</active>
+   <show_price>${snapshot.data['products'][0]['show_price']}</show_price>
+    <indexed>${snapshot.data['products'][0]['indexed']}</indexed>
+    <visibility>${snapshot.data['products'][0]['visibility']}</visibility>
+    <advanced_stock_management>${snapshot.data['products'][0]['advanced_stock_management']}</advanced_stock_management>
+    <date_add>${snapshot.data['products'][0]['date_add']}</date_add>
+    <date_upd>${snapshot.data['products'][0]['date_upd']}</date_upd>
+    <pack_stock_type>${snapshot.data['products'][0]['pack_stock_type']}</pack_stock_type>
+    <meta_description>${snapshot.data['products'][0]['meta_description']}</meta_description>
+    <meta_keywords>${snapshot.data['products'][0]['meta_keywords']}</meta_keywords>
+    <meta_title>${snapshot.data['products'][0]['meta_title']}</meta_title>
+    <link_rewrite>${snapshot.data['products'][0]['link_rewrite']}</link_rewrite>
+    <name>${nameController.text.trim()} </name>
+    <description>${snapshot.data['products'][0]['description']}</description>
+    <description_short>${snapshot.data['products'][0]['description_short']}</description_short>
+    <available_now>${snapshot.data['products'][0]['available_now']} </available_now>
+    <available_later>${snapshot.data['products'][0]['available_later']}</available_later>
 </product>
 </prestashop>''';
+//                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+// <product>
+// <id>${snapshot.data['products'][0]['id'].toString().trim()}</id>
+// <reference>${referencenumberController.text.trim()}</reference>
+// <location>${locationController.text.trim()}</location>
+// <price>${priceController.text.trim()}</price>
+// <active>$active</active>
+// <ean13>${referencenumberController.text.trim()}</ean13>
+// <name>${nameController.text.trim()}</name>
+// </product>
+// </prestashop>''';
                           final userXml2 =
                               '''<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
   <stock_available>
@@ -287,7 +342,7 @@ class _ProductState extends State<Product> {
     <location>${locationController.text.trim()}</location>
   </stock_available>
 </prestashop>''';
-                          // print(userXml);
+                          //print(userXml);
                           // print(userXml2);
                           final http.Response result = await http.put(
                             Uri.parse('$_site/products?$_key'),
@@ -296,7 +351,7 @@ class _ProductState extends State<Product> {
                             },
                             body: userXml,
                           );
-                          // print(userXml2);
+                          //  print(result.statusCode);
                           final http.Response result2 = await http.put(
                             Uri.parse('$_site/stock_availables?$_key'),
                             headers: <String, String>{
