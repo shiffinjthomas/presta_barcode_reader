@@ -50,12 +50,38 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  static const MaterialColor primaryBlack = MaterialColor(
+    _blackPrimaryValue,
+    <int, Color>{
+      50: Color(0xFFEF8344),
+      100: Color(0xFFEF8344),
+      200: Color(0xFFEF8344),
+      300: Color(0xFFEF8344),
+      400: Color(0xFFEF8344),
+      500: Color(_blackPrimaryValue),
+      600: Color(0xFFEF8344),
+      700: Color(0xFFEF8344),
+      800: Color(0xFFEF8344),
+      900: Color(0xFFEF8344),
+    },
+  );
+  static const int _blackPrimaryValue = 0xFFEF8344;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            primarySwatch: primaryBlack,
+            fontFamily: "Arial",
+            textTheme: const TextTheme(
+              button: TextStyle(color: Colors.white, fontSize: 20.0),
+            )),
         home: Scaffold(
             appBar: AppBar(title: const Text('Barcode scan')),
+            bottomNavigationBar: const Padding(
+              padding: EdgeInsets.only(left: 50.0, right: 50.0),
+              child: Text('Devoloped by :Gofenice Tecnologies'),
+            ),
             body: Builder(builder: (BuildContext context) {
               return Container(
                   alignment: Alignment.center,
@@ -81,7 +107,7 @@ class _MyAppState extends State<MyApp> {
                                 }
                               }
                             },
-                            child: Text('Start barcode scan')),
+                            child: Text('Scan')),
                       ]));
             })));
   }

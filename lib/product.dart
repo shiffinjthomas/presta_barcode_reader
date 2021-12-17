@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unnecessary_new
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -10,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 //import 'package:async/async.dart';
 import 'package:delayed_display/delayed_display.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class Product extends StatefulWidget {
   final url;
@@ -27,6 +29,8 @@ class _ProductState extends State<Product> {
   // ignore: prefer_typing_uninitialized_variables
   late final _url;
   var connectionStatus = false;
+  String _scanBarcode = 'Unknown';
+  bool result = false;
   _ProductState(this._url);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController nameController = TextEditingController();
@@ -41,6 +45,35 @@ class _ProductState extends State<Product> {
   // final _key = "ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1";
   final _site = "https://trendz.gofenice.in/api";
   final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> scanBarcodeNormal() async {
+    String barcodeScanRes = 'Unknown';
+
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcodeScanRes;
+      if (_scanBarcode != 'Failed to get platform version.' ||
+          _scanBarcode != 'Unknown') {
+        result = true;
+      } else {
+        result = false;
+      }
+    });
+  }
+
   Future check() async {
     try {
       if (_url.length == 8 || _url.length == 13) {
@@ -79,6 +112,10 @@ class _ProductState extends State<Product> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(title: const Text('Barcode scan')),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(left: 50.0, right: 50.0),
+          child: Text('Devoloped by :Gofenice Tecnologies'),
+        ),
         body: FutureBuilder(
             future: check(), // a previously-obtained Future or null
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -89,7 +126,24 @@ class _ProductState extends State<Product> {
                     child: ListView(
                   padding: const EdgeInsets.all(8),
                   children: <Widget>[
+                    Flexible(
+                      child: new Container(
+                        padding: new EdgeInsets.only(right: 13.0),
+                        child: new Text(
+                          '${snapshot.data['products'][0]['name'].toString()}',
+                          overflow: TextOverflow.fade,
+                          style: new TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                     TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: nameController,
                         decoration: InputDecoration(
                             labelText:
@@ -98,7 +152,11 @@ class _ProductState extends State<Product> {
                                 .toString())),
                     Row(
                       children: [
-                        Text('Active'),
+                        Text('Active',
+                            style: new TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            )),
                         Switch(
                           value: _switchValue,
                           onChanged: (value) {
@@ -130,12 +188,20 @@ class _ProductState extends State<Product> {
                     //             "Active :${snapshot.data['products'][0]['active'].toString()}",
                     //         hintText: "Active")),
                     TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: referencenumberController,
                         decoration: InputDecoration(
                             labelText:
                                 "Reference :${snapshot.data['products'][0]['reference'].toString()}",
                             hintText: "Reference")),
                     TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: qtyonhandController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -143,6 +209,10 @@ class _ProductState extends State<Product> {
                                 "Quantity :${snapshot.data['stock']['quantity'].toString()}",
                             hintText: "Quantity")),
                     TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: priceController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -150,6 +220,10 @@ class _ProductState extends State<Product> {
                                 "Price :${snapshot.data['products'][0]['price'].toString()}",
                             hintText: "Price")),
                     TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: locationController,
                         decoration: InputDecoration(
                             labelText:
@@ -242,7 +316,11 @@ class _ProductState extends State<Product> {
                                 context, 'Cannot Update Product Try Again');
                           }
                         },
-                        child: Text('Submit Data')),
+                        child: Text('Submit Data',
+                            style: new TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ))),
                   ],
                 ));
               } else {
@@ -251,10 +329,34 @@ class _ProductState extends State<Product> {
                     child: Center(
                   child: DelayedDisplay(
                     delay: Duration(seconds: 5),
-                    child: Text(
-                      "Product not found. Try again later",
-                      style: TextStyle(
-                        color: Colors.red,
+                    child: Container(
+                      padding: new EdgeInsets.only(top: 100),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Product not found. Try again later",
+                            style: TextStyle(color: Colors.red, fontSize: 20.0),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await scanBarcodeNormal();
+                              // print(_scanBarcode);
+                              if (result) {
+                                if (_scanBarcode != '' ||
+                                    _scanBarcode !=
+                                        'Failed to get platform version.' ||
+                                    _scanBarcode != 'Unknown') {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Product(_scanBarcode)));
+                                }
+                              }
+                            },
+                            child: Text('Scan Again'),
+                          ),
+                        ],
                       ),
                     ),
                   ),
