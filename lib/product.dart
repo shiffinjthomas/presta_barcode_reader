@@ -42,6 +42,7 @@ class _ProductState extends State<Product> {
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController isbnController = TextEditingController();
+  TextEditingController refController = TextEditingController();
   late bool _switchValue = false;
   late bool _exicuted = false;
   // final _site = "https://shiffin.gofenice.in/tutpre/api";
@@ -93,14 +94,37 @@ class _ProductState extends State<Product> {
   }
 
   Future check() async {
-    print(_url);
-    print(_ref);
     try {
-      if (_url.length == 8 || _url.length == 13) {
-        // print(
-        //     '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key');
+      if (_url != null && _ref == null) {
+        if (_url.length == 8 || _url.length == 13) {
+          // print(
+          //     '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key');
+          var response = await http.get(Uri.parse(
+              '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key'));
+          var data = jsonDecode(utf8.decode(response.bodyBytes));
+
+          var response2 = await http.get(Uri.parse(
+              '$_site/stock_availables?filter[id_product]=${data['products'][0]['id']}&display=full&output_format=JSON&$_key'));
+          var data2 = jsonDecode(utf8.decode(response2.bodyBytes));
+          data['stock'] = data2['stock_availables'][0];
+          // print(data);
+          if (data != null) {
+            connectionStatus = true;
+            //  print("connected $connectionStatus");
+          }
+
+          if (!_exicuted) {
+            if (data['products'][0]['active'].toString() == '1') {
+              _switchValue = true;
+            }
+          }
+
+          return data;
+        }
+      }
+      if (_url == null && _ref != null) {
         var response = await http.get(Uri.parse(
-            '$_site/products?filter[reference]=${_url.substring(0, _url.length - 1)}&display=full&output_format=JSON&$_key'));
+            '$_site/products?filter[reference]=$_ref&display=full&output_format=JSON&$_key'));
         var data = jsonDecode(utf8.decode(response.bodyBytes));
 
         var response2 = await http.get(Uri.parse(
@@ -408,37 +432,86 @@ class _ProductState extends State<Product> {
                   child: DelayedDisplay(
                     delay: Duration(seconds: 5),
                     child: Container(
-                      padding: new EdgeInsets.only(top: 100),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Product not found. Try again later",
-                            style: TextStyle(color: Colors.red, fontSize: 20.0),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(240, 80)),
-                            onPressed: () async {
-                              await scanBarcodeNormal();
-                              // print(_scanBarcode);
-                              if (result) {
-                                if (_scanBarcode != '' ||
-                                    _scanBarcode !=
-                                        'Failed to get platform version.' ||
-                                    _scanBarcode != 'Unknown') {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              Product(_scanBarcode, null)));
+                        padding: new EdgeInsets.only(top: 100),
+                        child: ListView(
+                          padding: const EdgeInsets.all(8),
+                          children: <Widget>[
+                            Text(
+                              "Product not found. Try again later",
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 20.0),
+                            ),
+                            SizedBox(
+                              height: 40.0,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  new Flexible(
+                                    child: new TextField(
+                                        style: new TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        controller: refController,
+                                        decoration: InputDecoration(
+                                            labelText: "Reference No",
+                                            hintText: "Reference No")),
+                                  ),
+                                  ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          //    fixedSize: const Size(40, 40)
+                                          ),
+                                      // onPressed: () => scanBarcodeNormal(),
+                                      onPressed: () async {
+                                        //  print(refController.text);
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => Product(
+                                                    null, refController.text)));
+                                      },
+                                      child: Text('Go')),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 40.0,
+                            ),
+                            Center(
+                              child: Text('OR',
+                                  style: new TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 40.0,
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(240, 80)),
+                              onPressed: () async {
+                                await scanBarcodeNormal();
+                                // print(_scanBarcode);
+                                if (result) {
+                                  if (_scanBarcode != '' ||
+                                      _scanBarcode !=
+                                          'Failed to get platform version.' ||
+                                      _scanBarcode != 'Unknown') {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                Product(_scanBarcode, null)));
+                                  }
                                 }
-                              }
-                            },
-                            child: Text('Scan Again'),
-                          ),
-                        ],
-                      ),
-                    ),
+                              },
+                              child: Text('Scan Again'),
+                            ),
+                          ],
+                        )),
                   ),
                 ));
               }

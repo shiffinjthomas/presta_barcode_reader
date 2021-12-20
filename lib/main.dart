@@ -91,21 +91,54 @@ class _MyAppState extends State<MyApp> {
                   )),
             ),
             body: Builder(builder: (BuildContext context) {
-              return Column(
-                children: [
-                  TextField(
-                      style: new TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
+              return ListView(
+                padding: const EdgeInsets.all(8),
+                children: <Widget>[
+                  SizedBox(
+                    height: 100.0,
+                  ),
+                  Row(
+                    children: <Widget>[
+                      new Flexible(
+                        child: new TextField(
+                            style: new TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            controller: refController,
+                            decoration: InputDecoration(
+                                labelText: "Reference No",
+                                hintText: "Reference No")),
                       ),
-                      controller: refController,
-                      decoration: InputDecoration(
-                          labelText: "Reference No", hintText: "Reference No")),
-                  Text('OR',
-                      style: new TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      )),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              //    fixedSize: const Size(40, 40)
+                              ),
+                          // onPressed: () => scanBarcodeNormal(),
+                          onPressed: () async {
+                            //  print(refController.text);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Product(null, refController.text)));
+                          },
+                          child: Text('Go')),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Center(
+                    child: Text('OR',
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
+                  SizedBox(
+                    height: 40.0,
+                  ),
                   Container(
                       alignment: Alignment.center,
                       child: Flex(
