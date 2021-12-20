@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> {
     },
   );
   static const int _blackPrimaryValue = 0xFFEF8344;
+  TextEditingController refController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -84,37 +85,57 @@ class _MyAppState extends State<MyApp> {
                   border: Border.all(
                     color: primaryBlack,
                   )),
-              child: Text('Devoloped by :Gofenice Tecnologies'),
+              child: Text('Devoloped by :Gofenice Tecnologies',
+                  style: new TextStyle(
+                    fontSize: 18.0,
+                  )),
             ),
             body: Builder(builder: (BuildContext context) {
-              return Container(
-                  alignment: Alignment.center,
-                  child: Flex(
-                      direction: Axis.vertical,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(240, 80)),
-                            // onPressed: () => scanBarcodeNormal(),
-                            onPressed: () async {
-                              await scanBarcodeNormal();
-                              // print(_scanBarcode);
-                              if (result) {
-                                if (_scanBarcode != '' ||
-                                    _scanBarcode !=
-                                        'Failed to get platform version.' ||
-                                    _scanBarcode != 'Unknown') {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              Product(_scanBarcode)));
-                                }
-                              }
-                            },
-                            child: Text('Scan')),
-                      ]));
+              return Column(
+                children: [
+                  TextField(
+                      style: new TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      controller: refController,
+                      decoration: InputDecoration(
+                          labelText: "Reference No", hintText: "Reference No")),
+                  Text('OR',
+                      style: new TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      )),
+                  Container(
+                      alignment: Alignment.center,
+                      child: Flex(
+                          direction: Axis.vertical,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    fixedSize: const Size(240, 80)),
+                                // onPressed: () => scanBarcodeNormal(),
+                                onPressed: () async {
+                                  await scanBarcodeNormal();
+                                  // print(_scanBarcode);
+                                  if (result) {
+                                    if (_scanBarcode != '' ||
+                                        _scanBarcode !=
+                                            'Failed to get platform version.' ||
+                                        _scanBarcode != 'Unknown') {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Product(_scanBarcode, null)));
+                                    }
+                                  }
+                                },
+                                child: Text('Scan')),
+                          ])),
+                ],
+              );
             })));
   }
 }

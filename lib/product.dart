@@ -15,9 +15,10 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class Product extends StatefulWidget {
   final url;
-  Product(this.url);
+  final ref;
+  Product(this.url, this.ref);
   @override
-  createState() => _ProductState(this.url);
+  createState() => _ProductState(this.url, this.ref);
 }
 
 class _ProductState extends State<Product> {
@@ -28,10 +29,11 @@ class _ProductState extends State<Product> {
 
   // ignore: prefer_typing_uninitialized_variables
   late final _url;
+  late final _ref;
   var connectionStatus = false;
   String _scanBarcode = 'Unknown';
   bool result = false;
-  _ProductState(this._url);
+  _ProductState(this._url, this._ref);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController ifactiveController = TextEditingController();
@@ -39,6 +41,7 @@ class _ProductState extends State<Product> {
   TextEditingController qtyonhandController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController isbnController = TextEditingController();
   late bool _switchValue = false;
   late bool _exicuted = false;
   // final _site = "https://shiffin.gofenice.in/tutpre/api";
@@ -90,6 +93,8 @@ class _ProductState extends State<Product> {
   }
 
   Future check() async {
+    print(_url);
+    print(_ref);
     try {
       if (_url.length == 8 || _url.length == 13) {
         // print(
@@ -133,7 +138,10 @@ class _ProductState extends State<Product> {
               border: Border.all(
                 color: primaryBlack,
               )),
-          child: Text('Devoloped by :Gofenice Tecnologies'),
+          child: Text('Devoloped by :Gofenice Tecnologies',
+              style: new TextStyle(
+                fontSize: 18.0,
+              )),
         ),
         body: FutureBuilder(
             future: check(), // a previously-obtained Future or null
@@ -220,6 +228,16 @@ class _ProductState extends State<Product> {
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
                         ),
+                        controller: isbnController,
+                        decoration: InputDecoration(
+                            labelText:
+                                "ISBN :${snapshot.data['products'][0]['isbn'].toString()}",
+                            hintText: "ISBN")),
+                    TextField(
+                        style: new TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         controller: qtyonhandController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -265,6 +283,10 @@ class _ProductState extends State<Product> {
                                 .data['products'][0]['reference']
                                 .toString();
                           }
+                          if (isbnController.text == '') {
+                            isbnController.text =
+                                snapshot.data['products'][0]['isbn'].toString();
+                          }
                           if (qtyonhandController.text == '') {
                             qtyonhandController.text =
                                 snapshot.data['stock']['quantity'].toString();
@@ -294,6 +316,7 @@ class _ProductState extends State<Product> {
     <supplier_reference>${snapshot.data['products'][0]['supplier_reference']}</supplier_reference>
     <location>${locationController.text.trim()}</location>
    <ean13>${referencenumberController.text.trim()}</ean13>
+   <isbn>${isbnController.text.trim()}</isbn>
     <price>${priceController.text.trim()}</price>
     <wholesale_price>${snapshot.data['products'][0]['wholesale_price']}</wholesale_price>
     <unity>${snapshot.data['products'][0]['unity']}</unity>
@@ -393,6 +416,8 @@ class _ProductState extends State<Product> {
                             style: TextStyle(color: Colors.red, fontSize: 20.0),
                           ),
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(240, 80)),
                             onPressed: () async {
                               await scanBarcodeNormal();
                               // print(_scanBarcode);
@@ -405,7 +430,7 @@ class _ProductState extends State<Product> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              Product(_scanBarcode)));
+                                              Product(_scanBarcode, null)));
                                 }
                               }
                             },
