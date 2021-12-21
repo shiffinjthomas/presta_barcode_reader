@@ -45,10 +45,10 @@ class _ProductState extends State<Product> {
   TextEditingController refController = TextEditingController();
   late bool _switchValue = false;
   late bool _exicuted = false;
-  // final _site = "https://shiffin.gofenice.in/tutpre/api";
-  // final _key = "ws_key=4PD3IN6G9WT6TYE67J54F7SCIF99MFC1";
-  final _site = "https://trendz.gofenice.in/api";
-  final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";
+  final _site = "https://www.trendz-bisuteria.com/api";
+  final _key = "ws_key=ZT3QS3YJPI2IQ79PEC1ZLME5UK1KB9MI"; //live
+  // final _site = "https://trendz.gofenice.in/api";
+  // final _key = "ws_key=QCZIYHRUY39FQZU1MSNSM76QLX1RRIFP	";//local
   static const MaterialColor primaryBlack = MaterialColor(
     _blackPrimaryValue,
     <int, Color>{
